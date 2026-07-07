@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>\Reception Details - Barcode Label Generator</title>
+<script src="vendor/JsBarcode.all.min.js"></script>
+<style>
+  :root{
+    --ink:#0f1115;
+    --paper:#ffffff;
+    --line:#e2e4e8;
+    --muted:#6b7280;
+    --accent:#1a2332;
+    --field-bg:#f7f8fa;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:#eef0f3;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:40px 16px;
+  }
+
+  /* ---------- FORM VIEW ---------- */
+  #formView{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:36px;
+    width:100%;
+    max-width:460px;
+    height:fit-content;
+    box-shadow:0 1px 3px rgba(15,17,21,.04);
+  }
+  #formView h1{
+    font-size:22px;
+    margin:0 0 24px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    padding:11px 13px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--field-bg);
+    font-size:14px;
+    color:var(--ink);
+    font-family:inherit;
+  }
+  .field input:focus{
+    outline:none;
+    border-color:var(--accent);
+    background:var(--paper);
+  }
+  .field small.err{
+    display:none;
+    color:#c0362c;
+    font-size:12px;
+    margin-top:4px;
+  }
+  .field.invalid input{border-color:#c0362c;}
+  .field.invalid small.err{display:block;}
+
+  button#generateBtn{
+    width:100%;
+    padding:14px;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:8px;
+  }
+  button#generateBtn:hover{background:#0f1622;}
+
+  /* ---------- PRINT PREVIEW VIEW ---------- */
+  #previewView{display:none;width:100%;}
+  #previewToolbar{
+    max-width:794px;
+    margin:0 auto 20px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  #previewToolbar button{
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink);
+  }
+  #previewToolbar button.primary{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+  }
+  #previewToolbar .spacer{flex:1;}
+  #previewToolbar .hint{font-size:13px;color:var(--muted);}
+
+  .a4-page{
+    width:210mm;
+    min-height:297mm;
+    margin:0 auto;
+    background:#fff;
+    padding:14mm;
+    box-shadow:0 1px 4px rgba(15,17,21,.15);
+  }
+
+  .a4-title{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 6mm;
+    padding-bottom:3mm;
+    border-bottom:1px solid var(--line);
+  }
+
+  .label-grid{
+    display:flex;
+    flex-direction:column;
+    gap:9mm;
+  }
+
+  .label-block{
+    padding:0 0 6mm;
+    border-bottom:1px solid var(--line);
+    break-inside:avoid;
+  }
+  .label-block:last-child{border-bottom:none;}
+  .label-block .field-name{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:#3949ab;
+    margin:0 0 2mm;
+    font-weight:700;
+  }
+  .label-block .field-value{
+    font-size:15px;
+    font-weight:700;
+    margin:0 0 3mm;
+    word-break:break-word;
+  }
+  .label-block svg{
+    display:block;
+    max-width:60mm;
+    height:auto;
+  }
+
+  @media print{
+    body{background:#fff;padding:0;}
+    #previewToolbar{display:none;}
+    .a4-page{
+      box-shadow:none;
+      margin:0;
+      width:auto;
+      min-height:auto;
+    }
+    @page{size:A4;margin:12mm;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ FORM VIEW ============ -->
+<div id="formView">
+  <h1>Reception Details</h1>
+  <form id="packForm" novalidate>
+    <div class="field" data-field="itemCode">
+      <label for="itemCode">Item Code</label>
+      <input type="text" id="itemCode" placeholder="Enter item code">
+      <small class="err">Item code is required</small>
+    </div>
+    <div class="field" data-field="grade">
+      <label for="grade">Grade</label>
+      <input type="text" id="grade" placeholder="Enter grade">
+      <small class="err">Grade is required</small>
+    </div>
+    <div class="field" data-field="cropYear">
+      <label for="cropYear">Crop Year</label>
+      <input type="text" id="cropYear" placeholder="Enter crop year">
+      <small class="err">Crop year is required</small>
+    </div>
+    <div class="field" data-field="grossWeight">
+      <label for="grossWeight">AGL Gross Weight</label>
+      <input type="text" id="grossWeight" placeholder="Enter agl gross weight">
+      <small class="err">Gross weight is required</small>
+    </div>
+    <div class="field" data-field="netWeight">
+      <label for="netWeight">AGL NET Weight</label>
+      <input type="text" id="netWeight" placeholder="Enter agl net weight">
+      <small class="err">Net weight is required</small>
+    </div>
+    <div class="field" data-field="brokenStraps">
+      <label for="brokenStraps">Number of Broken Straps</label>
+      <input type="text" id="brokenStraps" placeholder="Enter number of broken straps">
+      <small class="err">This field is required</small>
+    </div>
+    <button type="submit" id="generateBtn">Generate and Print</button>
+  </form>
+</div>
+
+<!-- ============ PRINT PREVIEW VIEW ============ -->
+<div id="previewView">
+  <div id="previewToolbar">
+    <button id="backBtn">&larr; Back to edit</button>
+    <span class="spacer"></span>
+    <span class="hint">A4 print preview</span>
+    <button id="printBtn" class="primary">Print</button>
+  </div>
+  <div class="a4-page">
+    <p class="a4-title">Reception Details Barcode Label Sheet<br><span style="font-weight:400;color:var(--muted);">A4 print preview</span></p>
+    <div class="label-grid" id="labelGrid"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
